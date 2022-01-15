@@ -1,0 +1,3 @@
+<!--pages/detail-songs/index.wxml-->
+<area-header title="{{rankingInfo.name}}" showRight="{{false}}"></area-header>
+ 
