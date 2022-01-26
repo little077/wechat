@@ -1,65 +1,59 @@
 // pages/detail-search/index.js
+import {getHotSearch,searchReasult} from "../../service/api-search"
+import {antiskake} from '../../utils/search'
 Page({
 
     /**
      * 页面的初始数据
      */
     data: {
+        hotSearch:[],
+        suggestsearch:[],
+        searchValue:"",
+        songsresult:[],
     },
 
     /**
      * 生命周期函数--监听页面加载
      */
     onLoad: function (options) {
+        getHotSearch().then(res=>{
+            this.setData({hotSearch:res.result.hots})
+        })
      
+        
     },
-
-    /**
-     * 生命周期函数--监听页面初次渲染完成
-     */
-    onReady: function () {
-
+    search(e){
+       this.setData({searchValue:e.detail})
+       if(!e.detail.length) return 
+        antiskake(200,e.detail,this)
+       
     },
-
-    /**
-     * 生命周期函数--监听页面显示
-     */
-    onShow: function () {
-
+    // 回车时搜索逻辑
+    bandleSearchAction(){
+        const {searchValue} = this.data
+        searchReasult(searchValue).then(res=>{
+            this.setData({songsresult:res.result.songs})
+        })
     },
-
-    /**
-     * 生命周期函数--监听页面隐藏
-     */
-    onHide: function () {
-
+    //点击搜索item时搜索逻辑
+    getSearchValue(e){
+        const index= e.currentTarget.dataset.item
+        this.setData({searchValue:this.data.suggestsearch[index].keyword})
+        searchReasult(this.data.suggestsearch[index].keyword).then(res=>{
+            this.setData({songsresult:res.result.songs,suggestsearch:[]})
+        })
     },
-
-    /**
-     * 生命周期函数--监听页面卸载
-     */
-    onUnload: function () {
-
+    //点击推荐时的逻辑
+    hotsearch(e){
+     const index = e.target.dataset.item
+     this.setData({searchValue:this.data.hotSearch[index].first})
+     searchReasult(this.data.hotSearch[index].first).then(res=>{
+        this.setData({songsresult:res.result.songs})
+    })
     },
-
-    /**
-     * 页面相关事件处理函数--监听用户下拉动作
-     */
-    onPullDownRefresh: function () {
-
-    },
-
-    /**
-     * 页面上拉触底事件的处理函数
-     */
-    onReachBottom: function () {
-
-    },
-
-    /**
-     * 用户点击右上角分享
-     */
-    onShareAppMessage: function () {
-
+    //清空结果的bug修复
+    clearSongsResult(){
+        this.setData({songsresult:[]})
     }
 })

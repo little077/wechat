@@ -1,5 +1,6 @@
 // pages/detail-songs/index.js
 import {rankingStore} from '../../store/index'
+import {getSongMenuDetail} from '../../service/api-music'
 Page({
 
     /**
@@ -7,19 +8,30 @@ Page({
      */
     data: {
       ranking:'',
-      rankingInfo:{}
+      detailInfo:{},
+       type:'',
     },
 
     onLoad: function (options) {
-      var {ranking} = options
+      let {type} = options
+      this.setData({type})
+      if(type==='menu'){
+        getSongMenuDetail(options.id).then(res=>{
+          this.setData({detailInfo:res.playlist})
+        })
+      }else if(type==='rank'){
+        var {ranking} = options
       this.setData({ranking})
       rankingStore.onState(ranking,this.getRankingDataHandler)
+      }
     },
   
     onUnload: function () {
+      if(this.data.ranking){
         rankingStore.offState(this.data.ranking,this.getRankingDataHandler)
+      }
     },
     getRankingDataHandler(res){
-      this.setData({rankingInfo:res})
+      this.setData({detailInfo:res})
     }
 })

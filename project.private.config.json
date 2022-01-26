@@ -1,4 +1,5 @@
 {
+    "setting": {},
     "condition": {
         "plugin": {
             "list": []
@@ -14,6 +15,18 @@
                 {
                     "name": "默认Video",
                     "pathName": "pages/home-video/index",
+                    "query": "",
+                    "scene": null
+                },
+                {
+                    "name": "detailmusic",
+                    "pathName": "pages/detail-songs/index",
+                    "query": "id=7020312267&type=menu",
+                    "scene": null
+                },
+                {
+                    "name": "search",
+                    "pathName": "pages/detail-search/index",
                     "query": "",
                     "scene": null
                 }
