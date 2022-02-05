@@ -54,7 +54,6 @@ page {
 
 .album .image {
   width: 100%;
-  height: 100%;
   border-radius: 12rpx;
 }
 
@@ -80,6 +79,8 @@ page {
   align-items: center;
   justify-content: center;
   flex: 1;
+  font-size: 28rpx;
+  color: #0f0;
 }
 
 /* 进度 */
@@ -99,7 +100,7 @@ page {
 }
 
 .time .current {
-  margin-left: 10rpx;
+  margin-left: 15rpx;
 }
 
 
@@ -126,4 +127,7 @@ page {
 .operation .btn-pause {
   width: 130rpx;
   height: 130rpx;
+}
+wx-slider .wx-slider-track  {
+  background: linear-gradient(to right, #AACDFF 0%, #FFE6B9 50%, #FFBEB4 100%);
 }

@@ -19,8 +19,8 @@ function PadLetfZero(time){
 function formatDuration(duration){
   var duration = parseInt(duration)
     var time = duration/1000
-    var minute = parseInt(time/60)
-    var second = time%60
+    var minute = Math.floor(time/60)
+    var second = Math.ceil( time%60)
     return PadLetfZero(minute) + ":" + PadLetfZero(second)
 }
 
