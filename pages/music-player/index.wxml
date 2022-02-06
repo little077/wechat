@@ -30,7 +30,7 @@
         <view class="alias">专辑:《{{currentSong.alia[0]}}》</view>
       </view>
     </view>
-    <view class="lyric" wx:if="{{isMusicLyric}}">我是歌词, 哈哈哈</view>
+    <view class="lyric" wx:if="{{isMusicLyric}}">{{currentLyricText}}</view>
     <view class="progress">
     <!-- 滑动模块 -->
       <slider class="slider"

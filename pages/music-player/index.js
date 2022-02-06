@@ -1,6 +1,7 @@
 // pages/music-player/index.js
-import {getPlayer} from "../../service/api_player"
+import {getPlayer , getSongLyric} from "../../service/api_player"
 import {audioContext} from '../../store/index'
+import {parseLyric} from '../../utils/parse-lyric'
 Page({
 
 	/**
@@ -15,6 +16,9 @@ Page({
 	  durationTime:0,
 	  currentTime:0,
 	  sliderValue:0,
+	  lyric:"",
+	  currentLyricIndex:0,
+	  currentLyricText:""
 	},
 
 	/**
@@ -24,8 +28,15 @@ Page({
 		//拿到歌曲id
 	  const {id} =options
 	  this.setData({id})
+	  //拿到歌曲信息
 	  getPlayer(id).then(res=>{
 		  this.setData({currentSong:res.songs[0],durationTime:res.songs[0].dt})
+	  })
+	  //拿到歌词
+	  getSongLyric(id).then(res=>{
+		  const lyric =res.lrc.lyric
+		  this.setData({lyric:parseLyric(lyric)})
+		 
 	  })
 	   // 动态计算内容高度
 	   const globalData = getApp().globalData
@@ -49,7 +60,21 @@ Page({
 		//初始化更新时间和value
 		const sliderValue = (currentTime / this.data.durationTime * 100)
 		this.setData({sliderValue,currentTime})
-		  
+		
+      // 根据当前时间去查找播放的歌词
+      let i = 0
+      for (; i < this.data.lyric.length; i++) {
+        const lyricInfo = this.data.lyric[i]
+        if (currentTime < lyricInfo.time) {
+          break
+        }
+      }
+      // 设置当前歌词的索引和内容
+      const currentIndex = i - 1
+      if (this.data.currentLyricIndex !== currentIndex) {
+        const currentLyricInfo = this.data.lyric[currentIndex]
+        this.setData({ currentLyricText: currentLyricInfo.text, currentLyricIndex: currentIndex })
+      }
 		})
 	},
 	// 事件处理
@@ -71,7 +96,7 @@ Page({
 	},
 	// 滑块滑动处理
     handleSliderChangeing(e){
-		//先暂停不然会有bug
+		//先暂停不然会有滑动bug(和设计有关)
 		audioContext.pause()
 		const value =e.detail.value
 		const currentTime= this.data.durationTime *value /100

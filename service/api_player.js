@@ -4,3 +4,8 @@ export function getPlayer(ids){
 		ids
 	})
 }
+export function  getSongLyric(id) {
+	return YUANRequest.get("/lyric",{
+		id
+	})
+}

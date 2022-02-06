@@ -80,7 +80,8 @@ page {
   justify-content: center;
   flex: 1;
   font-size: 28rpx;
-  color: #0f0;
+  color:rgb(197, 145, 216);
+
 }
 
 /* 进度 */
@@ -129,5 +130,5 @@ page {
   height: 130rpx;
 }
 wx-slider .wx-slider-track  {
-  background: linear-gradient(to right, #AACDFF 0%, #FFE6B9 50%, #FFBEB4 100%);
+  background: linear-gradient(to right, rgb(31, 28, 44) 0%, rgb(146, 141, 171) 51%, rgb(31, 28, 44) 100%);
 }
