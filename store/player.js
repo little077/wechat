@@ -10,8 +10,12 @@ const playStore = new HYEventStore({
 		currentSong:{},
 		durationTime:0,
 		lyric:[],
+
+		currentTime:0,
+	    currentLyricIndex:0,
+	    currentLyricText:"",
 	},
-	action:{
+	actions:{
 		playMusicWithSongIdAction(ctx,{id}){
 			ctx.id = id
 			// 请求歌曲详情
@@ -21,11 +25,50 @@ const playStore = new HYEventStore({
 			})
 			//拿到歌词
 			getSongLyric(id).then(res=>{
-				const lyric =res.lrc.lyric
-				const lyrics = parseLyric(lyric)
+				const lyricc =res.lrc.lyric
+				const lyrics = parseLyric(lyricc)
 				ctx.lyric = lyrics
 			    
 			})
+		//  播放器 
+		audioContext.stop()
+		audioContext.src = `https://music.163.com/song/media/outer/url?id=${id}.mp3`
+		audioContext.autoplay = true
+		//播放的一些处理
+		this.dispatch("setUpAudioContextListenerAction")
+		},
+		setUpAudioContextListenerAction(ctx){
+			audioContext.onCanplay(()=>{
+				audioContext.play()
+			  })
+			  //更新时间处理
+			  audioContext.onTimeUpdate(()=>{
+			  //得到当前播放时间
+			  const currentTime = (audioContext.currentTime * 1000)
+			  //初始化更新时间和value
+			  ctx.currentTime = currentTime
+			  
+			// 根据当前时间去查找播放的歌词
+			if(!ctx.lyric.length) return
+			let i = 0
+			for (; i < ctx.lyric.length; i++) {
+			  const lyricInfo = ctx.lyric[i]
+			  if (currentTime < lyricInfo.time) {
+				break
+			  }
+			}
+			// 设置当前歌词的索引和内容
+			const currentIndex = i - 1
+		    
+			if (ctx.currentLyricIndex !== currentIndex) {
+		    	// this.ctx.lyric = ctx.lyric[currentIndex]
+		    	// this.ctx.currentLyricIndex  = currentIndex
+				// this.ctx.currentLyricText = currentLyricText 
+				const currentLyricInfo = ctx.lyric[currentIndex]
+                ctx.currentLyricIndex = currentIndex
+                ctx.currentLyricText = currentLyricInfo.text 
+			}
+			  })
 		}
 	},
 })

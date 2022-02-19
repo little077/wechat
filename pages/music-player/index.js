@@ -13,15 +13,19 @@ Page({
 	  lyric:"",
 	  durationTime:0,
 
+	  currentTime:0,
+	  currentLyricIndex:0,
+	  currentLyricText:"",
+
 	  currentPage: 0,
 	  contentHeight: 0,
 	  isMusicLyric:true,
 	  
-	  currentTime:0,
+	  
 	  sliderValue:0,
 	  
-	  currentLyricIndex:0,
-	  currentLyricText:"",
+	  
+	  
 	  lyricScrollTop:0
 	},
 
@@ -43,39 +47,8 @@ Page({
 	   const navBarHeight = globalData.navBarHeight
 	   const contentHeight = screenHeight - statusBarHeight - navBarHeight
 	   this.setData({ contentHeight ,isMusicLyric: deviceRadio >= 2 })
-		//  播放器 
-		audioContext.stop()
-		audioContext.src = `https://music.163.com/song/media/outer/url?id=${id}.mp3`
-		audioContext.autoplay = true
-		audioContext.onCanplay(()=>{
-		  audioContext.play()
-		})
-		//更新时间处理
-	    audioContext.onTimeUpdate(()=>{
-		//得到当前播放时间
-		const currentTime = (audioContext.currentTime * 1000)
-		//初始化更新时间和value
-		const sliderValue = (currentTime / this.data.durationTime * 100)
-		this.setData({sliderValue,currentTime})
-		
-	  // 根据当前时间去查找播放的歌词
-	  if(!this.data.lyric.length) return
-      let i = 0
-      for (; i < this.data.lyric.length; i++) {
-        const lyricInfo = this.data.lyric[i]
-        if (currentTime < lyricInfo.time) {
-          break
-        }
-      }
-      // 设置当前歌词的索引和内容
-	  const currentIndex = i - 1
-	 
-      if (this.data.currentLyricIndex !== currentIndex) {
-        const currentLyricInfo = this.data.lyric[currentIndex]
-		this.setData({ currentLyricText: currentLyricInfo.text,          currentLyricIndex: currentIndex,
-		lyricScrollTop:currentIndex*35})
-      }
-		})
+	
+	
 	},
 	// 事件处理
 	handleSwiperChange: function(event) {
@@ -103,8 +76,34 @@ Page({
 		this.setData({currentTime,sliderValue: value})
 	},
     setUpPlayerStoreListener(){
-       playStore.onStates(['durationTime','lyric','currentSong'],(res)=>{
-		   console.log(res)
+		// 监听durationTime','lyric','currentSong'变化
+       playStore.onStates(['durationTime','lyric','currentSong'],({durationTime,lyric,currentSong})=>{
+		   if(durationTime) this.setData({durationTime})
+		   if(currentSong) this.setData({currentSong})
+		   if(lyric) this.setData({lyric})
 	   })
+	     // 2.监听currentTime/currentLyricIndex/currentLyricText
+		 playStore.onStates(["currentTime", "currentLyricIndex", "currentLyricText"], ({
+			currentTime,
+			currentLyricIndex,
+			currentLyricText
+		  }) => {
+			// 时间变化
+			if (currentTime && !this.data.isSliderChanging) {
+			  const sliderValue = currentTime / this.data.durationTime * 100
+			  this.setData({ currentTime, sliderValue })
+			}
+			// 歌词变化
+			if (currentLyricIndex) {
+			  this.setData({ currentLyricIndex, lyricScrollTop: currentLyricIndex * 35 })
+			}
+			if (currentLyricText) {
+			  this.setData({ currentLyricText })
+			}
+		  })
+	  
+	},
+	backPage(){
+		wx.navigateBack() 
 	}
 })
