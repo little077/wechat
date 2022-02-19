@@ -1,4 +1,10 @@
 //创建播放实例
 const audioContext = wx.createInnerAudioContext()
+import {HYEventStore} from 'hy-event-store'
 
-export {audioContext}
+const playStore = new HYEventStore({
+	state:{},
+	action:{},
+})
+
+export {audioContext,playStore}

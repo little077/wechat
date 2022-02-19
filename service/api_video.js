@@ -3,7 +3,7 @@ import YUANRequest from './index'
 export function getTopMV(offset,limit=10){
  return YUANRequest.get('/top/mv',{
       offset,
-      limit
+      limit,
   })
 }
 /**
@@ -12,7 +12,7 @@ export function getTopMV(offset,limit=10){
  */
 export function getMVURL(id) {
   return YUANRequest.get('/mv/url',{
-    id
+    id,
   })}
 /**
  * 详情MV
@@ -20,7 +20,7 @@ export function getMVURL(id) {
  */
 export function getMVDetail(mvid) {
   return YUANRequest.get('/mv/detail',{
-    mvid
+    mvid,
   })
 }
 /**
@@ -29,7 +29,7 @@ export function getMVDetail(mvid) {
  */
 export function getRelat(id) {
   return YUANRequest.get('/related/allvideo',{
-    id
+    id,
   })
 }
 

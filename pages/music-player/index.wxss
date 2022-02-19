@@ -129,6 +129,36 @@ page {
   width: 130rpx;
   height: 130rpx;
 }
+/* 滑动模块样式 */
 wx-slider .wx-slider-track  {
   background: linear-gradient(to right, rgb(31, 28, 44) 0%, rgb(146, 141, 171) 51%, rgb(31, 28, 44) 100%);
+}
+/* 歌词展示部分样式 */
+.lyric-list {
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+/* 去除滚动条 */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  color: transparent;
+}
+
+.lyric-list .item {
+  height: 35px;
+  line-height: 35px;
+  font-size: 28rpx;
+  text-align: center;
+  color: #989898;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lyric-list .item.active {
+  color: #26ce8a;
+  font-size: 36rpx;
 }

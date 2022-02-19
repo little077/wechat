@@ -6,11 +6,11 @@ export function getSuggestSearch(keywords) {
     return YUANRequest.get('/search/suggest',
     {
       keywords,
-      type:"mobile"
+      type:"mobile",
     })
 }
 export function  searchReasult(keywords) {
   return YUANRequest.get('/search',{
-    keywords
+    keywords,
   })
 }

@@ -18,7 +18,8 @@ Page({
 	  sliderValue:0,
 	  lyric:"",
 	  currentLyricIndex:0,
-	  currentLyricText:""
+	  currentLyricText:"",
+	  lyricScrollTop:0
 	},
 
 	/**
@@ -73,7 +74,8 @@ Page({
       const currentIndex = i - 1
       if (this.data.currentLyricIndex !== currentIndex) {
         const currentLyricInfo = this.data.lyric[currentIndex]
-        this.setData({ currentLyricText: currentLyricInfo.text, currentLyricIndex: currentIndex })
+		this.setData({ currentLyricText: currentLyricInfo.text,          currentLyricIndex: currentIndex,
+		lyricScrollTop:currentIndex*35})
       }
 		})
 	},
