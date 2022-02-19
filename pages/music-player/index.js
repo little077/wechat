@@ -1,7 +1,6 @@
 // pages/music-player/index.js
-import {getPlayer , getSongLyric} from "../../service/api_player"
-import {audioContext} from '../../store/index'
-import {parseLyric} from '../../utils/parse-lyric'
+import {audioContext,playStore} from '../../store/index'
+
 Page({
 
 	/**
@@ -9,14 +8,18 @@ Page({
 	 */
 	data: {
 	  id:undefined,
+
 	  currentSong:{},
+	  lyric:"",
+	  durationTime:0,
+
 	  currentPage: 0,
 	  contentHeight: 0,
 	  isMusicLyric:true,
-	  durationTime:0,
+	  
 	  currentTime:0,
 	  sliderValue:0,
-	  lyric:"",
+	  
 	  currentLyricIndex:0,
 	  currentLyricText:"",
 	  lyricScrollTop:0
@@ -29,16 +32,9 @@ Page({
 		//拿到歌曲id
 	  const {id} =options
 	  this.setData({id})
-	  //拿到歌曲信息
-	  getPlayer(id).then(res=>{
-		  this.setData({currentSong:res.songs[0],durationTime:res.songs[0].dt})
-	  })
-	  //拿到歌词
-	  getSongLyric(id).then(res=>{
-		  const lyric =res.lrc.lyric
-		  this.setData({lyric:parseLyric(lyric)})
-		 
-	  })
+
+	  this.setUpPlayerStoreListener()
+
 	   // 动态计算内容高度
 	   const globalData = getApp().globalData
 	   const deviceRadio = globalData.deviceRadio
@@ -62,7 +58,8 @@ Page({
 		const sliderValue = (currentTime / this.data.durationTime * 100)
 		this.setData({sliderValue,currentTime})
 		
-      // 根据当前时间去查找播放的歌词
+	  // 根据当前时间去查找播放的歌词
+	  if(!this.data.lyric.length) return
       let i = 0
       for (; i < this.data.lyric.length; i++) {
         const lyricInfo = this.data.lyric[i]
@@ -71,7 +68,8 @@ Page({
         }
       }
       // 设置当前歌词的索引和内容
-      const currentIndex = i - 1
+	  const currentIndex = i - 1
+	 
       if (this.data.currentLyricIndex !== currentIndex) {
         const currentLyricInfo = this.data.lyric[currentIndex]
 		this.setData({ currentLyricText: currentLyricInfo.text,          currentLyricIndex: currentIndex,
@@ -103,5 +101,10 @@ Page({
 		const value =e.detail.value
 		const currentTime= this.data.durationTime *value /100
 		this.setData({currentTime,sliderValue: value})
+	},
+    setUpPlayerStoreListener(){
+       playStore.onStates(['durationTime','lyric','currentSong'],(res)=>{
+		   console.log(res)
+	   })
 	}
 })
