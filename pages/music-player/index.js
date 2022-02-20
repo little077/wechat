@@ -1,6 +1,6 @@
 // pages/music-player/index.js
 import {audioContext,playStore} from '../../store/index'
-
+const playModeNames = ["order", "repeat", "random"]
 Page({
 
 	/**
@@ -24,7 +24,8 @@ Page({
 	  
 	  sliderValue:0,
 	  
-	  
+	  playModeIndex: 0,
+	  playModeName: "order",
 	  
 	  lyricScrollTop:0
 	},
@@ -83,7 +84,7 @@ Page({
 		   if(lyric) this.setData({lyric})
 	   })
 	     // 2.监听currentTime/currentLyricIndex/currentLyricText
-		 playStore.onStates(["currentTime", "currentLyricIndex", "currentLyricText"], ({
+	   playStore.onStates(["currentTime", "currentLyricIndex", "currentLyricText"], ({
 			currentTime,
 			currentLyricIndex,
 			currentLyricText
@@ -101,9 +102,16 @@ Page({
 			  this.setData({ currentLyricText })
 			}
 		  })
-	  
+	  playStore.onState("playModeIndex",(playModeIndex)=>{
+		  this.setData({playModeIndex,playModeName:playModeNames[playModeIndex]})
+	  })
 	},
 	backPage(){
 		wx.navigateBack() 
+	},
+	modeChange(){
+	   let playModeIndex = this.data.playModeIndex+1
+	   if(playModeIndex===3)   playModeIndex = 0
+	   playStore.setState("playModeIndex",playModeIndex)
 	}
 })

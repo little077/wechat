@@ -13,7 +13,8 @@ const playStore = new HYEventStore({
 
 		currentTime:0,
 	    currentLyricIndex:0,
-	    currentLyricText:"",
+		currentLyricText:"",
+		playModeIndex:0
 	},
 	actions:{
 		playMusicWithSongIdAction(ctx,{id}){
