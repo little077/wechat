@@ -27,7 +27,10 @@ Page({
 	  playModeIndex: 0,
 	  playModeName: "order",
 	  
-	  lyricScrollTop:0
+	  lyricScrollTop:0,
+     //歌曲是否正在播放
+	  isPlaying:false
+	  
 	},
 
 	/**
@@ -65,7 +68,7 @@ Page({
 		audioContext.pause()
 		// 切换到点击后的进度播放
 		audioContext.seek(currentTime/1000)
-		this.setData({sliderValue:value})
+		this.setData({sliderValue:value,isPlaying:true})
 		
 	},
 	// 滑块滑动处理
@@ -102,16 +105,27 @@ Page({
 			  this.setData({ currentLyricText })
 			}
 		  })
-	  playStore.onState("playModeIndex",(playModeIndex)=>{
-		  this.setData({playModeIndex,playModeName:playModeNames[playModeIndex]})
+	  playStore.onStates(["playModeIndex","isPlaying"],({playModeIndex,isPlaying})=>{
+		 if(playModeIndex!==undefined){
+			this.setData({playModeIndex,playModeName:playModeNames[playModeIndex]})
+		 }
+		 if (isPlaying !== undefined){
+		this.setData({isPlaying:isPlaying})
+		 }
 	  })
 	},
 	backPage(){
 		wx.navigateBack() 
 	},
+	//模式切换事件
 	modeChange(){
 	   let playModeIndex = this.data.playModeIndex+1
 	   if(playModeIndex===3)   playModeIndex = 0
 	   playStore.setState("playModeIndex",playModeIndex)
+	},
+	//播放暂停事件
+	btnClick(){
+		playStore.dispatch("changeMusicPlayStatusAction")
+	    
 	}
 })

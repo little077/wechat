@@ -14,7 +14,10 @@ const playStore = new HYEventStore({
 		currentTime:0,
 	    currentLyricIndex:0,
 		currentLyricText:"",
-		playModeIndex:0
+
+		playModeIndex:0, //记录播放模式 0 循环 1 单曲 2 随机
+
+		isPlaying:true  
 	},
 	actions:{
 		playMusicWithSongIdAction(ctx,{id}){
@@ -70,7 +73,11 @@ const playStore = new HYEventStore({
                 ctx.currentLyricText = currentLyricInfo.text 
 			}
 			  })
-		}
+		},
+		changeMusicPlayStatusAction(ctx) {
+			ctx.isPlaying = !ctx.isPlaying
+			ctx.isPlaying ? audioContext.play(): audioContext.pause()
+		  }
 	},
 })
 
