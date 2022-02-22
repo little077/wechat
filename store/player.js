@@ -16,12 +16,23 @@ const playStore = new HYEventStore({
 		currentLyricText:"",
 
 		playModeIndex:0, //记录播放模式 0 循环 1 单曲 2 随机
+		playList:[], //列表
+		playListIndex:0, //列表索引
 
 		isPlaying:true  
 	},
 	actions:{
 		playMusicWithSongIdAction(ctx,{id}){
+			if(ctx.id == id) return
 			ctx.id = id
+			ctx.isPlaying = true
+			//清除上一次的缓存
+			ctx.currentSong = {}
+			ctx.durationTime = 0
+			ctx.lyric = []
+			ctx.currentTime = 0
+			ctx.currentLyricIndex = 0
+			ctx.currentLyricText = ''
 			// 请求歌曲详情
 			getPlayer(id).then(res=>{
 				ctx.currentSong = res.songs[0]
@@ -40,6 +51,8 @@ const playStore = new HYEventStore({
 		audioContext.autoplay = true
 		//播放的一些处理
 		this.dispatch("setUpAudioContextListenerAction")
+		 //派发出当前播放的歌曲，形成列表
+		this.dispatch("setPlayList",id)
 		},
 		setUpAudioContextListenerAction(ctx){
 			audioContext.onCanplay(()=>{
@@ -77,8 +90,32 @@ const playStore = new HYEventStore({
 		changeMusicPlayStatusAction(ctx) {
 			ctx.isPlaying = !ctx.isPlaying
 			ctx.isPlaying ? audioContext.play(): audioContext.pause()
-		  }
-	},
+		  },
+		async  setPlayList(ctx,id){
+			function unique(arr) {
+				let newMap = new Map()
+				let result = []
+				arr.forEach((element) => {
+				newMap.set(element.id, element)
+				})
+				newMap.forEach((value, key) => {
+				result.push(value)
+				})
+			 return result
+			}
+			let newarr = [...ctx.playList]
+			let res =  await	getPlayer(id)
+			let currentSong = res.songs[0]
+		    newarr.push(currentSong)
+	     	
+		ctx.playList = unique(newarr)
+        for(let i =0 ;i <ctx.playList.length; i ++){
+			if( ctx.playList[i].id===ctx.id){
+				ctx.playListIndex = i
+			}
+		}
+	  },
+	}, 
 })
 
 export {audioContext,playStore}
