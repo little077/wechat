@@ -125,7 +125,14 @@ Page({
 	},
 	//播放暂停事件
 	btnClick(){
-		playStore.dispatch("changeMusicPlayStatusAction")
-	    
+		playStore.dispatch("changeMusicPlayStatusAction",!this.data.isPlaying)
+	},
+	//上一首
+	prevPlayMusic(){
+		playStore.dispatch("prevplay") 
+	},
+	//下一首
+	nextPlayMusic(){
+		playStore.dispatch("nextplay")
 	}
 })

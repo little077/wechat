@@ -3,9 +3,12 @@ const audioContext = wx.createInnerAudioContext()
 import {getPlayer , getSongLyric} from "../service/api_player"
 import {parseLyric} from '../utils/parse-lyric'
 import {HYEventStore,} from 'hy-event-store'
-
+import {randomNum} from '../utils/randomMath'
 const playStore = new HYEventStore({
 	state:{
+
+		isFirstPlay:true,
+
 		id:0,
 		currentSong:{},
 		durationTime:0,
@@ -22,8 +25,8 @@ const playStore = new HYEventStore({
 		isPlaying:true  
 	},
 	actions:{
-		playMusicWithSongIdAction(ctx,{id}){
-			if(ctx.id == id) return
+		playMusicWithSongIdAction(ctx,{id,isid=true}){
+			if(isid) 	{if(ctx.id == id) return}
 			ctx.id = id
 			ctx.isPlaying = true
 			//清除上一次的缓存
@@ -49,8 +52,12 @@ const playStore = new HYEventStore({
 		audioContext.stop()
 		audioContext.src = `https://music.163.com/song/media/outer/url?id=${id}.mp3`
 		audioContext.autoplay = true
-		//播放的一些处理
+		//播放的一些处理因为用到的是同一个audioContext对象，所以派发一次
+        if(ctx.isFirstPlay){
 		this.dispatch("setUpAudioContextListenerAction")
+		ctx.isFirstPlay = false
+		}
+
 		 //派发出当前播放的歌曲，形成列表
 		this.dispatch("setPlayList",id)
 		},
@@ -64,7 +71,6 @@ const playStore = new HYEventStore({
 			  const currentTime = (audioContext.currentTime * 1000)
 			  //初始化更新时间和value
 			  ctx.currentTime = currentTime
-			  
 			// 根据当前时间去查找播放的歌词
 			if(!ctx.lyric.length) return
 			let i = 0
@@ -78,17 +84,26 @@ const playStore = new HYEventStore({
 			const currentIndex = i - 1
 		    
 			if (ctx.currentLyricIndex !== currentIndex) {
-		    	// this.ctx.lyric = ctx.lyric[currentIndex]
-		    	// this.ctx.currentLyricIndex  = currentIndex
-				// this.ctx.currentLyricText = currentLyricText 
 				const currentLyricInfo = ctx.lyric[currentIndex]
                 ctx.currentLyricIndex = currentIndex
                 ctx.currentLyricText = currentLyricInfo.text 
 			}
 			  })
+              audioContext.onEnded(()=>{
+				  if(ctx.playModeIndex==1){
+                    this.dispatch("playMusicWithSongIdAction",{id:ctx.id,isid:false})
+				  }
+				  if(ctx.playModeIndex == 2){
+					  this.dispatch("nextplay")
+				  }
+				  if(ctx.playList.length === 1 ){
+					this.dispatch("playMusicWithSongIdAction",{id:ctx.id,isid:false})
+				  }
+				  this.dispatch("playMusicWithSongIdAction",{id:ctx.id,isid:false})
+			  })
 		},
-		changeMusicPlayStatusAction(ctx) {
-			ctx.isPlaying = !ctx.isPlaying
+		changeMusicPlayStatusAction(ctx,isPlaying = true) {
+			ctx.isPlaying = isPlaying
 			ctx.isPlaying ? audioContext.play(): audioContext.pause()
 		  },
 		async  setPlayList(ctx,id){
@@ -114,6 +129,42 @@ const playStore = new HYEventStore({
 				ctx.playListIndex = i
 			}
 		}
+	  },
+	  //这一段太完美了
+	  nextplay(ctx){
+		let index =ctx.playListIndex
+		let length = ctx.playList.length
+		switch(ctx.playModeIndex){
+		  case 0 :
+			ctx.playListIndex = index +1
+			if(ctx.playListIndex === length) ctx.playListIndex = 0
+			break
+		  case 1 :
+			break
+		  case 2 :
+			ctx.playListIndex = randomNum(0,length-1)
+			break
+		}
+		if(ctx.playList[ctx.playListIndex].id == ctx.id) return
+		this.dispatch("playMusicWithSongIdAction",{id:ctx.playList[ctx.playListIndex].id})
+		
+	  },
+	  prevplay(ctx){ 
+		let index =ctx.playListIndex
+		let length = ctx.playList.length
+		switch(ctx.playModeIndex){
+		  case 0 :
+			ctx.playListIndex = index -1
+			if(ctx.playListIndex === -1) ctx.playListIndex = ctx.playList.length-1
+			break
+		  case 1 :
+			break
+		  case 2 :
+			ctx.playListIndex = randomNum(0,length-1)
+			break
+		}
+		if(ctx.playList[ctx.playListIndex].id == ctx.id) return
+		this.dispatch("playMusicWithSongIdAction",{id:ctx.playList[ctx.playListIndex].id})
 	  },
 	}, 
 })
