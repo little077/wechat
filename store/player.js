@@ -26,6 +26,9 @@ const playStore = new HYEventStore({
 	},
 	actions:{
 		playMusicWithSongIdAction(ctx,{id,isid=true}){
+			//因为牵扯到单曲循环，但是考虑到用户使用，点击同一首歌曲默认是为不重新播放
+		   //但是单曲循环和列表数据为1的时候情况，就加入isid来进行判断是否重新播放
+		   //这里可能对性能做的很差
 			if(isid) 	{if(ctx.id == id) return}
 			ctx.id = id
 			ctx.isPlaying = true
@@ -89,16 +92,21 @@ const playStore = new HYEventStore({
                 ctx.currentLyricText = currentLyricInfo.text 
 			}
 			  })
+			  //歌曲播放完成的监听
               audioContext.onEnded(()=>{
+				  //单曲就传isid为false进入播放
 				  if(ctx.playModeIndex==1){
                     this.dispatch("playMusicWithSongIdAction",{id:ctx.id,isid:false})
 				  }
+				  //随机音乐的处理
 				  if(ctx.playModeIndex == 2){
 					  this.dispatch("nextplay")
 				  }
+				  //考虑到列表只有一个，三种模式也就无所谓了，直接重新播放
 				  if(ctx.playList.length === 1 ){
 					this.dispatch("playMusicWithSongIdAction",{id:ctx.id,isid:false})
 				  }
+				  //循环处理
 				  this.dispatch("playMusicWithSongIdAction",{id:ctx.id,isid:false})
 			  })
 		},
