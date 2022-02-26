@@ -1,5 +1,6 @@
 // pages/home-music/index.js
-import {getBanner,getSongMenu} from '../../service/api-music'
+import {playStore} from '../../store/player'
+import {getBanner,getSongMenu, playerStore} from '../../service/api-music'
 import {antiSkake} from '../../utils/antiskake'
 import {rankingStore,rankingMap} from '../../store/index'
 
@@ -15,10 +16,15 @@ Page({
       recommendSongs:[],
       hotSongMenu:[],
       recommendSongMenu:[],
-      rankings: { 0: {}, 2: {}, 3: {} }
+      rankings: { 0: {}, 2: {}, 3: {} },
+
+      currentSong: {},
+      isPlaying: false,
+      playAnimState: "paused"
     },
-    
+     
     onLoad: function (options) {
+      playStore.dispatch("playMusicWithSongIdAction",{id:1901371647})
       getBanner().then(res=>{
         this.setData({banners:res.banners})
       })
@@ -38,6 +44,16 @@ Page({
       rankingStore.onState("newRanking", this.getRankingHandler(0))
       rankingStore.onState("originRanking", this.getRankingHandler(2))
       rankingStore.onState("upRanking", this.getRankingHandler(3))
+       // 2.播放器监听
+    playStore.onStates(["currentSong", "isPlaying"], ({currentSong, isPlaying}) => {
+      if (currentSong) this.setData({ currentSong })
+      if (isPlaying !== undefined) {
+        this.setData({ 
+          isPlaying, 
+          playAnimState: isPlaying ? "running": "paused" 
+        })
+      }
+    })
     },
     searchSkip(){
       wx.navigateTo({
@@ -76,5 +92,8 @@ Page({
     wx.navigateTo({
       url: `/pages/detail-songs/index?ranking=${rankingName}&type=rank`,
     })
-  }
+  },
+  handlePlayBtnClick: function() {
+    playStore.dispatch("changeMusicPlayStatusAction", !this.data.isPlaying)
+  },
 }) 
