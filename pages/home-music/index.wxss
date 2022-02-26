@@ -81,3 +81,7 @@ page{
 .album-anim {
   animation: albumRotate 16s linear infinite;
 }
+/* 决定是否撑起占位 */
+.bar-show{
+  height: 44px;
+}

@@ -1,5 +1,6 @@
 //创建播放实例
-const audioContext = wx.createInnerAudioContext()
+// const audioContext = wx.createInnerAudioContext()
+const audioContext = wx.getBackgroundAudioManager()
 import {getPlayer , getSongLyric} from "../service/api_player"
 import {parseLyric} from '../utils/parse-lyric'
 import {HYEventStore,} from 'hy-event-store'
@@ -8,6 +9,8 @@ const playStore = new HYEventStore({
 	state:{
 
 		isFirstPlay:true,
+ 
+        isStoping: false,
 
 		id:0,
 		currentSong:{},
@@ -43,6 +46,7 @@ const playStore = new HYEventStore({
 			getPlayer(id).then(res=>{
 				ctx.currentSong = res.songs[0]
 				ctx.durationTime = res.songs[0].dt
+				audioContext.title = res.songs[0].name
 			})
 			//拿到歌词
 			getSongLyric(id).then(res=>{
@@ -54,6 +58,7 @@ const playStore = new HYEventStore({
 		//  播放器 
 		audioContext.stop()
 		audioContext.src = `https://music.163.com/song/media/outer/url?id=${id}.mp3`
+		audioContext.title = "音你心动"
 		audioContext.autoplay = true
 		//播放的一些处理因为用到的是同一个audioContext对象，所以派发一次
         if(ctx.isFirstPlay){
@@ -109,10 +114,28 @@ const playStore = new HYEventStore({
 				  //循环处理
 				  this.dispatch("playMusicWithSongIdAction",{id:ctx.id,isid:false})
 			  })
+			  audioContext.onPlay(()=>{
+				  ctx.isPlaying = true
+			  })
+			  audioContext.onPause(()=>{
+                 ctx.isPlaying = false
+			  })
+			  audioContext.onStop(() => {
+				ctx.isPlaying = false
+				ctx.isStoping = true
+			  })
 		},
 		changeMusicPlayStatusAction(ctx,isPlaying = true) {
 			ctx.isPlaying = isPlaying
-			ctx.isPlaying ? audioContext.play(): audioContext.pause()
+			if (ctx.isPlaying && ctx.isStoping) {
+				audioContext.src = `https://music.163.com/song/media/outer/url?id=${ctx.id}.mp3`
+				audioContext.title = currentSong.name
+			  }
+			  ctx.isPlaying ? audioContext.play(): audioContext.pause()
+			  if (ctx.isStoping) {
+				audioContext.seek(ctx.currentTime)
+				ctx.isStoping = false
+			  }
 		  },
 		async  setPlayList(ctx,id){
 			function unique(arr) {

@@ -24,7 +24,7 @@ Page({
     },
      
     onLoad: function (options) {
-      playStore.dispatch("playMusicWithSongIdAction",{id:1901371647})
+      // playStore.dispatch("playMusicWithSongIdAction",{id:1901371647})
       getBanner().then(res=>{
         this.setData({banners:res.banners})
       })
@@ -86,14 +86,21 @@ Page({
   handleRankingItemClick(event){
     const idx = event.currentTarget.dataset.idx
     const rankingName = rankingMap[idx]
-    this.navigateToDetailSongs(rankingName)
+    this.navigateToDetailSongs(rankingName) 
   },
   navigateToDetailSongs(rankingName){
     wx.navigateTo({
       url: `/pages/detail-songs/index?ranking=${rankingName}&type=rank`,
     })
   },
-  handlePlayBtnClick: function() {
+  // 点击暂停或者播放
+  handlePlayClick: function() {
     playStore.dispatch("changeMusicPlayStatusAction", !this.data.isPlaying)
+  }, 
+  // 点击导航栏跳转到歌曲详情页
+  handlePlayBtnClick: function() {
+    wx.navigateTo({
+      url: '/pages/music-player/index?id=' + this.data.currentSong.id,
+    })
   },
 }) 

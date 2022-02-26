@@ -55,7 +55,10 @@ songMenu="{{recommendSongMenu}}" />
   </view>
 </view>
 <!-- 播放工具栏 -->
-<view class="play-bar">
+<view class="bar-show" wx:if="{{currentSong.id}}"></view>
+<view class="play-bar" 
+bindtap="handlePlayBtnClick"
+wx:if="{{currentSong.id}}">
   <view class="left">
     <image class="album album-anim" 
            style="animation-play-state: {{playAnimState}};"
@@ -66,7 +69,7 @@ songMenu="{{recommendSongMenu}}" />
   <view class="right">
     <image class="icon play" 
            src="/assets/images/music/{{ isPlaying ? 'pause': 'play' }}_icon.png"
-           bindtap="handlePlayBtnClick"></image>
+           catchtap="handlePlayClick"></image>
     <image class="icon playlist" src="/assets/images/music/playlist_icon.png"></image>
   </view>
 </view>
