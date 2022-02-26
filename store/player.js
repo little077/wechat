@@ -48,7 +48,7 @@ const playStore = new HYEventStore({
 				ctx.durationTime = res.songs[0].dt
 				audioContext.title = res.songs[0].name
 			})
-			//拿到歌词
+			//拿到歌词 
 			getSongLyric(id).then(res=>{
 				const lyricc =res.lrc.lyric
 				const lyrics = parseLyric(lyricc)
@@ -101,12 +101,12 @@ const playStore = new HYEventStore({
               audioContext.onEnded(()=>{
 				  //单曲就传isid为false进入播放
 				  if(ctx.playModeIndex==1){
-                    this.dispatch("playMusicWithSongIdAction",{id:ctx.id,isid:false})
+					this.dispatch("playMusicWithSongIdAction",{id:ctx.id,isid:false})
 				  }
 				  //随机音乐的处理
 				  if(ctx.playModeIndex == 2){
 					  this.dispatch("nextplay")
-				  }
+				  } 
 				  //考虑到列表只有一个，三种模式也就无所谓了，直接重新播放
 				  if(ctx.playList.length === 1 ){
 					this.dispatch("playMusicWithSongIdAction",{id:ctx.id,isid:false})
