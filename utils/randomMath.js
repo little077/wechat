@@ -1,4 +1,4 @@
-export function randomNum(minNum,maxNum){ 
+export let randomNum = function (minNum,maxNum){ 
     switch(arguments.length){ 
         case 1: 
             return parseInt(Math.random()*minNum+1,10); 

@@ -1,5 +1,6 @@
 //创建播放实例
-const audioContext = wx.createInnerAudioContext()
+// const audioContext = wx.createInnerAudioContext()
+const audioContext = wx.getBackgroundAudioManager()
 import {getPlayer , getSongLyric} from "../service/api_player"
 import {parseLyric} from '../utils/parse-lyric'
 import {HYEventStore,} from 'hy-event-store'
@@ -22,7 +23,7 @@ const playStore = new HYEventStore({
 		playList:[], //列表
 		playListIndex:0, //列表索引
 
-		isPlaying:true  
+		isPlaying:true   
 	},
 	actions:{
 		playMusicWithSongIdAction(ctx,{id,isid=true}){
@@ -43,6 +44,7 @@ const playStore = new HYEventStore({
 			getPlayer(id).then(res=>{
 				ctx.currentSong = res.songs[0]
 				ctx.durationTime = res.songs[0].dt
+				audioContext.title = res.songs[0].name
 			})
 			//拿到歌词
 			getSongLyric(id).then(res=>{
@@ -54,6 +56,7 @@ const playStore = new HYEventStore({
 		//  播放器 
 		audioContext.stop()
 		audioContext.src = `https://music.163.com/song/media/outer/url?id=${id}.mp3`
+		audioContext.title = '有little快乐'
 		audioContext.autoplay = true
 		//播放的一些处理因为用到的是同一个audioContext对象，所以派发一次
         if(ctx.isFirstPlay){
@@ -94,20 +97,17 @@ const playStore = new HYEventStore({
 			  })
 			  //歌曲播放完成的监听
               audioContext.onEnded(()=>{
-				  //单曲就传isid为false进入播放
-				  if(ctx.playModeIndex==1){
-                    this.dispatch("playMusicWithSongIdAction",{id:ctx.id,isid:false})
-				  }
-				  //随机音乐的处理
+				  //单曲就传isid为false进入播放	  //  
+				   //考虑到列表只有一个，三种模式也就无所谓了，直接重新播放
+				  if(ctx.playModeIndex==1||ctx.playList.length === 1 ){
+					this.dispatch("playMusicWithSongIdAction",{id:ctx.id,isid:false})}
+				//   //随机音乐的处理
 				  if(ctx.playModeIndex == 2){
 					  this.dispatch("nextplay")
-				  }
-				  //考虑到列表只有一个，三种模式也就无所谓了，直接重新播放
-				  if(ctx.playList.length === 1 ){
-					this.dispatch("playMusicWithSongIdAction",{id:ctx.id,isid:false})
-				  }
-				  //循环处理
-				  this.dispatch("playMusicWithSongIdAction",{id:ctx.id,isid:false})
+				  } 
+				//   顺序处理
+				if(ctx.playModeIndex==0){  this.dispatch("nextplay")
+				console.log(ctx.playListIndex)}
 			  })
 		},
 		changeMusicPlayStatusAction(ctx,isPlaying = true) {
@@ -146,15 +146,18 @@ const playStore = new HYEventStore({
 		  case 0 :
 			ctx.playListIndex = index +1
 			if(ctx.playListIndex === length) ctx.playListIndex = 0
+			this.dispatch("playMusicWithSongIdAction",{id:ctx.playList[ctx.playListIndex].id})
 			break
 		  case 1 :
+			this.dispatch("playMusicWithSongIdAction",{id:ctx.playList[ctx.playListIndex].id})
 			break
 		  case 2 :
 			ctx.playListIndex = randomNum(0,length-1)
+			this.dispatch("playMusicWithSongIdAction",{id:ctx.playList[ctx.playListIndex].id,isid:false})
 			break
 		}
-		if(ctx.playList[ctx.playListIndex].id == ctx.id) return
-		this.dispatch("playMusicWithSongIdAction",{id:ctx.playList[ctx.playListIndex].id})
+		// if(ctx.playList[ctx.playListIndex].id == ctx.id) return
+		
 		
 	  },
 	  prevplay(ctx){ 
