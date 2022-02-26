@@ -9,7 +9,7 @@ const playStore = new HYEventStore({
 	state:{
 
 		isFirstPlay:true,
-		isShoping:false,
+		isStoping:false,
 
 		id:0,
 		currentSong:{},
