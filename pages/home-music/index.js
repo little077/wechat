@@ -2,7 +2,7 @@
 import {getBanner,getSongMenu} from '../../service/api-music'
 import {antiSkake} from '../../utils/antiskake'
 import {rankingStore,rankingMap} from '../../store/index'
-
+import {playStore} from '../../store/player'
 
 Page({
 
@@ -15,7 +15,8 @@ Page({
       recommendSongs:[],
       hotSongMenu:[],
       recommendSongMenu:[],
-      rankings: { 0: {}, 2: {}, 3: {} }
+      rankings: { 0: {}, 2: {}, 3: {} },
+      currentSong: {},
     },
     
     onLoad: function (options) {
@@ -38,6 +39,16 @@ Page({
       rankingStore.onState("newRanking", this.getRankingHandler(0))
       rankingStore.onState("originRanking", this.getRankingHandler(2))
       rankingStore.onState("upRanking", this.getRankingHandler(3))
+        // 2.播放器监听
+    playStore.onStates(["currentSong", "isPlaying"], ({currentSong, isPlaying}) => {
+      if (currentSong) this.setData({ currentSong })
+      if (isPlaying !== undefined) {
+        this.setData({ 
+          isPlaying, 
+          playAnimState: isPlaying ? "running": "paused" 
+        })
+      }
+    })
     },
     searchSkip(){
       wx.navigateTo({
@@ -76,5 +87,16 @@ Page({
     wx.navigateTo({
       url: `/pages/detail-songs/index?ranking=${rankingName}&type=rank`,
     })
-  }
+  },
+  handlePlayBarClick: function() {
+    wx.navigateTo({
+      url: '/pages/music-player/index?id=' + this.data.currentSong.id,
+    })
+  },
+  handlePlayBtnClick: function(event) {
+    playStore.dispatch("changeMusicPlayStatusAction", !this.data.isPlaying)
+    // Propagation 繁殖
+    // event.stopPropagation()
+  },
+
 }) 

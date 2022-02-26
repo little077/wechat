@@ -65,7 +65,7 @@ Page({
 		const value = e.detail.value
 		const currentTime = this.data.durationTime * value / 100
 		//滑块点击时先暂停，不然可能会有bug
-		audioContext.pause()
+		// audioContext.pause()
 		// 切换到点击后的进度播放
 		audioContext.seek(currentTime/1000)
 		this.setData({sliderValue:value,isPlaying:true})

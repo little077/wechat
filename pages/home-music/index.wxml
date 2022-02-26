@@ -54,3 +54,20 @@ songMenu="{{recommendSongMenu}}" />
     </block>
   </view>
 </view>
+<!-- 播放工具栏 -->
+<view class="play-bar-placeholder" wx:if="{{currentSong.id}}"></view>
+<view class="play-bar" wx:if="{{currentSong.id}}" bindtap="handlePlayBarClick">
+  <view class="left">
+    <image class="album album-anim" 
+           style="animation-play-state: {{playAnimState}};"
+           mode="aspectFill" 
+           src="{{currentSong.al.picUrl}}"></image>
+    <view class="name">{{currentSong.name}}</view>
+  </view>
+  <view class="right">
+    <image class="icon play" 
+           src="/assets/images/music/{{ isPlaying ? 'pause': 'play' }}_icon.png"
+           catchtap="handlePlayBtnClick"></image>
+    <image class="icon playlist" src="/assets/images/music/playlist_icon.png"></image>
+  </view>
+</view>
