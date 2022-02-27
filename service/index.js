@@ -1,11 +1,18 @@
 const BASE_URL = "http://123.207.32.32:9001"
-
+const LOGIN_BASE_URL = "http://123.207.32.32:3000"
+const token = wx.getStorageSync('token')
 class YuanRequest {
-  request(url, method, params) {
+  constructor(baseURL,baseHeader = {}) {
+    this.baseURL = baseURL
+    this.baseHeader = baseHeader 
+  }
+  request(url, method, params,isAuton=false,header={}) {
+    const finalHeader = isAuton? { ...this.baseHeader, ...header }: header
     return new Promise((resolve, reject) => {
       wx.request({
-        url: BASE_URL + url,
+        url: this.baseURL + url,
         method: method,
+        header:finalHeader,
         data: params,
         success: function(res) {
           resolve(res.data)
@@ -17,15 +24,17 @@ class YuanRequest {
     })
   }
 
-  get(url, params) {
-    return this.request(url, "GET", params)
+  get(url, params,isAuton=false,header) {
+    return this.request(url, "GET", params,isAuton=false,header)
   }
 
-  post(url, data) {
-    return this.request(url, "POST", data)
+  post(url, data,isAuton=false,header) {
+    return this.request(url, "POST", data,isAuton=false,header)
   }
 }
 
-const YUANRequest = new YuanRequest()
-
+const YUANRequest = new YuanRequest(BASE_URL)
+export const YUANLoginRequest = new YuanRequest(LOGIN_BASE_URL,{
+  token
+})
 export default YUANRequest

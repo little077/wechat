@@ -42,7 +42,7 @@
         "useCompilerPlugins": false
     },
     "compileType": "miniprogram",
-    "libVersion": "2.21.2",
+    "libVersion": "2.21.0",
     "appid": "wxd5757b13f97e6cd8",
     "projectname": "demo",
     "debugOptions": {

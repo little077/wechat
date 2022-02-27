@@ -1,6 +1,6 @@
 //创建播放实例
-// const audioContext = wx.createInnerAudioContext()
-const audioContext = wx.getBackgroundAudioManager()
+// let audioContext = wx.createInnerAudioContext()
+let audioContext = wx.getBackgroundAudioManager()
 import {getPlayer , getSongLyric} from "../service/api_player"
 import {parseLyric} from '../utils/parse-lyric'
 import {HYEventStore,} from 'hy-event-store'
@@ -113,25 +113,23 @@ const playStore = new HYEventStore({
 			  audioContext.onPlay(()=>{
                 ctx.isPlaying = true
 			  })
+			
 			  audioContext.onPause(()=>{
                 ctx.isPlaying = false
 			  })
 			  audioContext.onStop(()=>{
 				  ctx.isPlaying = false
-				  ctx.isShoping = true
+				  ctx.isStoping = true
 			  })
 		},
 		changeMusicPlayStatusAction(ctx,isPlaying = true) {
 			ctx.isPlaying = isPlaying
 			if (ctx.isPlaying && ctx.isStoping) {
 				audioContext.src = `https://music.163.com/song/media/outer/url?id=${ctx.id}.mp3`
-				audioContext.title = currentSong.name
-			  }
-			  ctx.isPlaying ? audioContext.play(): audioContext.pause()
-			  if (ctx.isStoping) {
-				audioContext.seek(ctx.currentTime)
+				audioContext.startTime = ctx.currentTime / 1000
 				ctx.isStoping = false
 			  }
+			  ctx.isPlaying ? audioContext.play(): audioContext.pause()
 		  },
 		async  setPlayList(ctx,id){
 			function unique(arr) {

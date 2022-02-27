@@ -21,7 +21,8 @@ Page({
 	  contentHeight: 0,
 	  isMusicLyric:true,
 	  
-	  
+	  isSliderChanging: false,
+
 	  sliderValue:0,
 	  
 	  playModeIndex: 0,
@@ -40,7 +41,9 @@ Page({
 		//拿到歌曲id
 	  const {id} =options
 	  this.setData({id})
-
+      audioContext.onSeeking(()=>{
+		console.log("跳转之前")
+	})
 	  this.setUpPlayerStoreListener()
 
 	   // 动态计算内容高度
@@ -61,23 +64,24 @@ Page({
 	  },
 	//   滑块点击处理
 	handleSliderChange(e){
-		  //计算点击滑块时期望的currentTime与记录当前进度
 		const value = e.detail.value
+
+		// 2.计算需要播放的currentTIme
 		const currentTime = this.data.durationTime * value / 100
-		//滑块点击时先暂停，不然可能会有bug
+	
+		// 3.设置context播放currentTime位置的音乐
 		// audioContext.pause()
-		// 切换到点击后的进度播放
-		audioContext.seek(currentTime/1000)
-		this.setData({sliderValue:value,isPlaying:true})
-		
+		audioContext.seek(currentTime / 1000)
+	
+		// 4.记录最新的sliderValue, 并且需要讲isSliderChaning设置回false
+		this.setData({ sliderValue: value, isSliderChanging: false })
 	},
 	// 滑块滑动处理
     handleSliderChangeing(e){
-		//先暂停不然会有滑动bug(和设计有关)
-		audioContext.pause()
-		const value =e.detail.value
-		const currentTime= this.data.durationTime *value /100
-		this.setData({currentTime,sliderValue: value})
+	
+		const value = e.detail.value
+		const currentTime = this.data.durationTime * value / 100
+		this.setData({ isSliderChanging: true, currentTime })
 	},
     setUpPlayerStoreListener(){
 		// 监听durationTime','lyric','currentSong'变化
